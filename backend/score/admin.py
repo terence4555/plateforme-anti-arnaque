@@ -1,3 +1,1 @@
-from django.contrib import admin
-
-# Register your models here.
+﻿# App "score" — pas de modèles à enregistrer.

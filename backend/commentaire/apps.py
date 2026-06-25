@@ -1,4 +1,4 @@
 ﻿from django.apps import AppConfig
-class VotesConfig(AppConfig):
+class CommentaireConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'votes'
+    name = 'commentaire'
