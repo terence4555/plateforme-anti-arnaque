@@ -10,7 +10,6 @@ class PreuveSerializer(serializers.ModelSerializer):
 
 
 class SignalementListSerializer(serializers.ModelSerializer):
-    """Liste allégée."""
     type_display = serializers.CharField(source="get_type_arnaque_display", read_only=True)
     statut_display = serializers.CharField(source="get_statut_display", read_only=True)
     auteur_nom = serializers.SerializerMethodField()
@@ -29,7 +28,6 @@ class SignalementListSerializer(serializers.ModelSerializer):
 
 
 class SignalementDetailSerializer(serializers.ModelSerializer):
-    """Détail complet avec preuves."""
     type_display = serializers.CharField(source="get_type_arnaque_display", read_only=True)
     statut_display = serializers.CharField(source="get_statut_display", read_only=True)
     auteur_nom = serializers.SerializerMethodField()
@@ -65,10 +63,6 @@ class SignalementDetailSerializer(serializers.ModelSerializer):
 
 
 class SignalementCreateSerializer(serializers.ModelSerializer):
-    """Création d'un signalement."""
     class Meta:
         model = Signalement
-        fields = [
-            "numero_telephone", "profil_vendeur", "type_arnaque",
-            "description",
-        ]
+        fields = ["numero_telephone", "profil_vendeur", "type_arnaque", "description"]
