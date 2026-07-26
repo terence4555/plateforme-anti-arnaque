@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     "votes",
     "score",
     "administration",
+    "chatbot",
 ]
 
 MIDDLEWARE = [
