@@ -1,0 +1,154 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dossier #{{ dossier.id }} — Autorité compétente</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #12203B; --ink-soft: #3C4A63; --paper: #EDEFE9; --paper-raised: #FFFFFF;
+    --gold: #E3A23B; --gold-soft: #F4DBAE; --green: #2E6B52; --red: #B8432E;
+    --line: #D7D9CF; --radius: 14px;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--paper); color: var(--ink); font-family: 'IBM Plex Sans', sans-serif; line-height: 1.5; }
+
+  .top-bar { background: var(--ink); color: var(--paper); padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; }
+  .top-bar .brand { display: flex; align-items: center; gap: 10px; }
+  .top-bar .mark { width: 10px; height: 10px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 0 4px rgba(227,162,59,0.25); }
+  .top-bar span.titre { font-family: 'Space Grotesk', sans-serif; font-weight: 700; letter-spacing: 0.02em; }
+  .top-bar a { color: var(--paper); text-decoration: none; font-size: 0.85rem; border: 1px solid rgba(255,255,255,0.3); padding: 6px 12px; border-radius: 20px; }
+  .top-bar a:hover { border-color: var(--gold); }
+
+  main { max-width: 720px; margin: 0 auto; padding: 32px 20px 80px; }
+  .fil-ariane { font-size: 0.85rem; color: var(--ink-soft); margin-bottom: 10px; }
+  .fil-ariane a { color: var(--ink-soft); }
+
+  h1 { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 1.5rem; margin: 0 0 18px; }
+
+  .message-succes {
+    background: #E7F3ED; border: 1px solid var(--green); color: var(--green);
+    border-radius: 10px; padding: 10px 14px; font-size: 0.88rem; font-weight: 600; margin-bottom: 20px;
+  }
+
+  .carte { background: var(--paper-raised); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px; margin-bottom: 20px; }
+  .carte h2 { font-family: 'Space Grotesk', sans-serif; font-size: 1rem; margin: 0 0 12px; }
+
+  .texte-signalement { font-size: 0.95rem; margin-bottom: 14px; padding: 12px; background: var(--paper); border-radius: 8px; }
+
+  .meta-ligne { font-family: 'IBM Plex Mono', monospace; font-size: 0.8rem; color: var(--ink-soft); display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 6px; }
+
+  .entite { font-family: 'IBM Plex Mono', monospace; font-size: 0.82rem; background: var(--paper); border-radius: 8px; padding: 5px 9px; display: inline-block; margin: 3px 6px 3px 0; }
+
+  fieldset { border: none; padding: 0; margin: 0 0 14px; }
+  legend { font-size: 0.82rem; font-weight: 600; color: var(--ink-soft); margin-bottom: 8px; padding: 0; }
+
+  .options-radio { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+  .options-radio label { font-size: 0.92rem; display: flex; align-items: center; gap: 8px; cursor: pointer; }
+
+  select, textarea {
+    width: 100%; padding: 10px; border: 1px solid var(--line); border-radius: 8px;
+    font-family: 'IBM Plex Sans', sans-serif; font-size: 0.92rem; background: #FCFBF8; margin-bottom: 12px;
+  }
+  textarea { min-height: 90px; resize: vertical; }
+
+  button {
+    background: var(--ink); color: var(--paper); border: none; border-radius: 10px;
+    padding: 10px 18px; font-family: 'Space Grotesk', sans-serif; font-weight: 700;
+    font-size: 0.92rem; cursor: pointer;
+  }
+  button:hover { background: #1c2f52; }
+
+  .statut-badge { display: inline-block; background: var(--gold-soft); color: var(--ink); border-radius: 20px; padding: 4px 12px; font-size: 0.82rem; font-weight: 600; }
+  .veracite-badge.confirme { background: #FBEBE7; color: var(--red); }
+  .veracite-badge.infirme { background: #E7F3ED; color: var(--green); }
+  .veracite-badge.non_examine { background: var(--paper); color: var(--ink-soft); }
+  .veracite-badge { display: inline-block; border-radius: 20px; padding: 4px 12px; font-size: 0.82rem; font-weight: 600; margin-left: 8px; }
+
+  .bouton-pdf {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--gold); color: var(--ink); text-decoration: none;
+    padding: 9px 16px; border-radius: 10px; font-weight: 700; font-size: 0.88rem;
+    margin-top: 10px; margin-bottom: 6px;
+  }
+  .bouton-pdf:hover { background: #d18f2c; }
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <div class="brand">
+    <div class="mark"></div>
+    <span class="titre">SignalArnaque Togo</span>
+  </div>
+  <a href="{% url 'signalements:dossiers_liste' %}">← Tous les dossiers</a>
+</div>
+
+<main>
+  <div class="fil-ariane"><a href="{% url 'signalements:dossiers_liste' %}">Dossiers transmis</a> / Dossier #{{ dossier.id }}</div>
+  <h1>Dossier #{{ dossier.id }}
+    <span class="statut-badge">{{ dossier.get_statut_display }}</span>
+    <span class="veracite-badge {{ dossier.veracite }}">{{ dossier.get_veracite_display }}</span>
+  </h1>
+
+  <a class="bouton-pdf" href="{% url 'signalements:dossier_pdf' dossier.id %}">📄 Générer le dossier PDF (informations critiques)</a>
+
+  {% if message %}<div class="message-succes">{{ message }}</div>{% endif %}
+
+  <div class="carte">
+    <h2>Signalement concerné</h2>
+    <div class="texte-signalement">{{ dossier.signalement.texte }}</div>
+    <div class="meta-ligne">
+      <span>catégorie : {{ dossier.signalement.categorie_predite }}</span>
+      <span>confiance : {{ dossier.signalement.confiance|floatformat:2 }}</span>
+      <span>score de risque : {{ dossier.signalement.score_risque }}/100</span>
+      <span>transmis le {{ dossier.date_transmission|date:"d/m/Y H:i" }}</span>
+    </div>
+    {% if entites.telephones or entites.liens or entites.montants %}
+    <div>
+      {% for tel in entites.telephones %}<span class="entite">{{ tel }}</span>{% endfor %}
+      {% for lien in entites.liens %}<span class="entite">{{ lien }}</span>{% endfor %}
+      {% for m in entites.montants %}<span class="entite">{{ m }}</span>{% endfor %}
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="carte">
+    <h2>Confirmer ou infirmer la véracité</h2>
+    <form method="post">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="veracite">
+      <div class="options-radio">
+        {% for valeur, libelle in dossier.VERACITE_CHOICES %}
+        <label>
+          <input type="radio" name="veracite" value="{{ valeur }}" {% if dossier.veracite == valeur %}checked{% endif %}>
+          {{ libelle }}
+        </label>
+        {% endfor %}
+      </div>
+      <button type="submit">Enregistrer la véracité</button>
+    </form>
+  </div>
+
+  <div class="carte">
+    <h2>Mettre à jour le statut du dossier</h2>
+    <form method="post">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="statut">
+      <select name="statut">
+        {% for valeur, libelle in dossier.STATUT_CHOICES %}
+        <option value="{{ valeur }}" {% if dossier.statut == valeur %}selected{% endif %}>{{ libelle }}</option>
+        {% endfor %}
+      </select>
+      <textarea name="commentaire_autorite" placeholder="Notes / commentaire (optionnel)">{{ dossier.commentaire_autorite }}</textarea>
+      <button type="submit">Mettre à jour le statut</button>
+    </form>
+  </div>
+</main>
+
+</body>
+</html>
