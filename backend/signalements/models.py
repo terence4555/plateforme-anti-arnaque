@@ -1,4 +1,5 @@
-﻿from django.db import models
+﻿from django.core.validators import MaxValueValidator
+from django.db import models
 
 
 class Signalement(models.Model):
@@ -29,7 +30,7 @@ class Signalement(models.Model):
     description = models.TextField()
     date_signalement = models.DateTimeField(auto_now_add=True)
     statut = models.CharField(max_length=15, choices=STATUT_CHOICES, default="en_attente")
-    score = models.PositiveSmallIntegerField(default=100)
+    score = models.PositiveSmallIntegerField(default=100, validators=[MaxValueValidator(100)])
 
     class Meta:
         db_table = "Signalement"
