@@ -1,0 +1,216 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clusters émergents — Signalements</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #12203B;
+    --ink-soft: #3C4A63;
+    --paper: #EDEFE9;
+    --paper-raised: #FFFFFF;
+    --gold: #E3A23B;
+    --gold-soft: #F4DBAE;
+    --green: #2E6B52;
+    --red: #B8432E;
+    --line: #D7D9CF;
+    --radius: 14px;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'IBM Plex Sans', sans-serif;
+    line-height: 1.5;
+  }
+
+  .top-bar {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .top-bar .brand { display: flex; align-items: center; gap: 10px; }
+  .top-bar .mark {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: var(--gold);
+    box-shadow: 0 0 0 4px rgba(227,162,59,0.25);
+  }
+  .top-bar span.titre {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+  .top-bar .liens { display: flex; gap: 8px; }
+  .top-bar a {
+    color: var(--paper);
+    text-decoration: none;
+    font-size: 0.85rem;
+    border: 1px solid rgba(255,255,255,0.3);
+    padding: 6px 12px;
+    border-radius: 20px;
+  }
+  .top-bar a:hover { border-color: var(--gold); }
+  .top-bar a.actif { background: var(--gold); border-color: var(--gold); color: var(--ink); font-weight: 600; }
+
+  main {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 32px 20px 80px;
+  }
+
+  h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 1.7rem;
+    margin: 0 0 6px;
+  }
+
+  .sous-titre { color: var(--ink-soft); margin: 0 0 28px; max-width: 60ch; }
+
+  .grille-clusters {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 14px;
+  }
+
+  .carte-cluster {
+    background: var(--paper-raised);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 18px;
+    text-decoration: none;
+    color: var(--ink);
+    display: block;
+    transition: border-color 0.15s ease;
+  }
+  .carte-cluster:hover { border-color: var(--gold); }
+
+  .carte-cluster .en-tete {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 10px;
+    gap: 8px;
+  }
+
+  .carte-cluster .nombre {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 1.5rem;
+  }
+
+  .statut-badge {
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 4px 9px;
+    border-radius: 20px;
+    white-space: nowrap;
+  }
+  .statut-badge.a_examiner { background: var(--gold-soft); color: #8a5a12; }
+  .statut-badge.confirme { background: #dcefe4; color: var(--green); }
+  .statut-badge.rejete { background: #f6dbd5; color: var(--red); }
+
+  .carte-cluster .nom-valide {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    margin-bottom: 8px;
+  }
+
+  .carte-cluster .mots-cles {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--ink-soft);
+    line-height: 1.6;
+  }
+
+  .carte-cluster .silhouette {
+    margin-top: 10px;
+    font-size: 0.75rem;
+    color: var(--ink-soft);
+  }
+
+  .vide {
+    padding: 50px 20px;
+    text-align: center;
+    color: var(--ink-soft);
+    background: var(--paper-raised);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+  }
+  .vide code {
+    background: var(--paper);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <div class="brand">
+    <div class="mark"></div>
+    <span class="titre">SignalArnaque Togo</span>
+  </div>
+  <div class="liens">
+    <a href="{% url 'signalements:tableau_de_bord' %}">Tableau de bord</a>
+    <a href="{% url 'signalements:statistiques' %}">Statistiques</a>
+    <a href="{% url 'signalements:alertes_actives' %}">Alertes</a>
+    <a href="{% url 'signalements:liste_clusters' %}" class="actif">Clusters émergents</a>
+    <a href="{% url 'signalements:signaler' %}">+ Nouveau signalement</a>
+  </div>
+</div>
+
+<main>
+  <h1>Clusters émergents</h1>
+  <p class="sous-titre">
+    Groupes de signalements "Incertain" repérés automatiquement par clustering
+    (méthode non supervisée) — potentiellement de nouveaux types d'arnaque non
+    encore couverts par les 7 catégories connues. À examiner et valider dans
+    l'admin Django.
+  </p>
+
+  {% if clusters %}
+  <div class="grille-clusters">
+    {% for c in clusters %}
+    <a href="{% url 'signalements:detail_cluster' c.id %}" class="carte-cluster">
+      <div class="en-tete">
+        <span class="nombre">{{ c.nb_reel }}</span>
+        <span class="statut-badge {{ c.statut }}">
+          {% if c.statut == "a_examiner" %}À examiner{% elif c.statut == "confirme" %}Confirmé{% else %}Rejeté{% endif %}
+        </span>
+      </div>
+      {% if c.nom_valide %}
+      <div class="nom-valide">{{ c.nom_valide }}</div>
+      {% endif %}
+      <div class="mots-cles">{{ c.mots_cles }}</div>
+      {% if c.silhouette_score %}
+      <div class="silhouette">cohérence : {{ c.silhouette_score|floatformat:2 }}</div>
+      {% endif %}
+    </a>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="vide">
+    Aucun cluster détecté pour l'instant.<br><br>
+    Lance <code>python manage.py detecter_nouvelles_arnaques</code> une fois
+    qu'il y a assez de signalements classés "Incertain" en base.
+  </div>
+  {% endif %}
+</main>
+
+</body>
+</html>

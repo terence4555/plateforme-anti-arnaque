@@ -1,0 +1,384 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Signaler une arnaque — Togo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #12203B;
+    --ink-soft: #3C4A63;
+    --paper: #EDEFE9;
+    --paper-raised: #FFFFFF;
+    --gold: #E3A23B;
+    --gold-soft: #F4DBAE;
+    --green: #2E6B52;
+    --red: #B8432E;
+    --line: #D7D9CF;
+    --radius: 14px;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'IBM Plex Sans', sans-serif;
+    line-height: 1.5;
+  }
+
+  .top-bar {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .top-bar .brand { display: flex; align-items: center; gap: 10px; }
+
+  .top-bar .mark {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: var(--gold);
+    box-shadow: 0 0 0 4px rgba(227,162,59,0.25);
+  }
+
+  .top-bar span {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+
+  .top-bar a.lien-dashboard {
+    color: var(--paper);
+    text-decoration: none;
+    font-size: 0.85rem;
+    border: 1px solid rgba(255,255,255,0.3);
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-weight: 400;
+  }
+  .top-bar a.lien-dashboard:hover { border-color: var(--gold); }
+
+  main {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 36px 20px 80px;
+  }
+
+  h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 2rem;
+    line-height: 1.15;
+    margin: 0 0 10px;
+    color: var(--ink);
+  }
+
+  .sous-titre {
+    color: var(--ink-soft);
+    margin: 0 0 28px;
+    max-width: 46ch;
+  }
+
+  form {
+    background: var(--paper-raised);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 22px;
+  }
+
+  label {
+    display: block;
+    font-weight: 600;
+    font-size: 0.92rem;
+    margin-bottom: 8px;
+  }
+
+  textarea {
+    width: 100%;
+    min-height: 140px;
+    padding: 14px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 1rem;
+    resize: vertical;
+    background: #FCFBF8;
+  }
+
+  textarea:focus {
+    outline: 3px solid var(--gold-soft);
+    outline-offset: 1px;
+    border-color: var(--gold);
+  }
+
+  .erreur {
+    color: var(--red);
+    font-size: 0.9rem;
+    margin-top: 8px;
+  }
+
+  button {
+    margin-top: 16px;
+    background: var(--ink);
+    color: var(--paper);
+    border: none;
+    border-radius: 10px;
+    padding: 13px 22px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 0.98rem;
+    cursor: pointer;
+    transition: background 0.15s ease;
+  }
+
+  button:hover { background: #1c2f52; }
+  button:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+
+  .confidentialite {
+    font-size: 0.8rem;
+    color: var(--ink-soft);
+    margin-top: 12px;
+  }
+
+  /* ---------------- Résultat ---------------- */
+
+  .resultat {
+    margin-top: 32px;
+    background: var(--paper-raised);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+
+  .resultat-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 22px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .categorie-badge {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 1.05rem;
+  }
+
+  .confiance-tag {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--ink-soft);
+  }
+
+  .resultat-body { padding: 20px 22px 24px; }
+
+  /* Signature element : barres de signal, comme la réception d'un
+     téléphone, pour représenter le niveau de risque -- clin d'œil direct
+     au canal (téléphone/mobile money) par lequel arrivent ces arnaques. */
+  .signal {
+    display: flex;
+    align-items: flex-end;
+    gap: 5px;
+    height: 46px;
+    margin: 6px 0 4px;
+  }
+
+  .signal .barre {
+    width: 14px;
+    border-radius: 3px 3px 0 0;
+    background: var(--line);
+  }
+  .signal .barre:nth-child(1) { height: 20%; }
+  .signal .barre:nth-child(2) { height: 40%; }
+  .signal .barre:nth-child(3) { height: 60%; }
+  .signal .barre:nth-child(4) { height: 80%; }
+  .signal .barre:nth-child(5) { height: 100%; }
+
+  .signal.faible .barre:nth-child(-n+2) { background: var(--green); }
+  .signal.moyen .barre:nth-child(-n+3) { background: var(--gold); }
+  .signal.eleve .barre { background: var(--red); }
+
+  .score-ligne {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin-bottom: 18px;
+  }
+
+  .score-chiffre {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 1.8rem;
+  }
+
+  .score-label { color: var(--ink-soft); font-size: 0.9rem; }
+
+  .section-titre {
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--ink-soft);
+    margin: 18px 0 8px;
+  }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+
+  .chip {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    padding: 5px 12px;
+    font-size: 0.85rem;
+  }
+
+  .entite {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.85rem;
+    background: var(--paper);
+    border-radius: 8px;
+    padding: 6px 10px;
+    display: inline-block;
+    margin: 3px 6px 3px 0;
+  }
+
+  .alerte-campagne {
+    margin-top: 18px;
+    background: #FBEBE7;
+    border: 1px solid var(--red);
+    color: var(--red);
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+
+  .confirmation {
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+    margin-top: 18px;
+  }
+
+  @media (max-width: 420px) {
+    h1 { font-size: 1.6rem; }
+  }
+
+  /* Bannière d'alertes actives -- générée automatiquement à partir des
+     campagnes détectées et des clusters confirmés, aucune saisie manuelle */
+  .bandeau-alertes {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 16px 20px 0;
+  }
+  .alerte {
+    background: #FBEBE7;
+    border: 1px solid var(--red);
+    color: var(--red);
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <div class="brand">
+    <div class="mark"></div>
+    <span>SignalArnaque Togo</span>
+  </div>
+  <div style="display:flex; gap:8px;">
+    <a class="lien-dashboard" href="{% url 'signalements:tableau_de_bord' %}">Tableau de bord</a>
+    <a class="lien-dashboard" href="{% url 'signalements:statistiques' %}">Statistiques</a>
+    <a class="lien-dashboard" href="{% url 'signalements:alertes_actives' %}">Alertes</a>
+    <a class="lien-dashboard" href="{% url 'signalements:liste_clusters' %}">Clusters émergents</a>
+  </div>
+</div>
+
+{% if alertes %}
+<div class="bandeau-alertes">
+  {% for a in alertes %}
+  <div class="alerte">{{ a.message }}</div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<main>
+  <h1>Décris ce qui t'est arrivé.</h1>
+  <p class="sous-titre">
+    Raconte la situation avec tes mots. Le système identifie le type
+    d'arnaque et son niveau de risque en quelques secondes.
+  </p>
+
+  <form method="post" action="{% url 'signalements:signaler' %}">
+    {% csrf_token %}
+    <label for="texte">Ton signalement</label>
+    <textarea id="texte" name="texte" placeholder="Ex : On m'a contacté sur WhatsApp, la personne m'a demandé d'envoyer de l'argent pour...">{{ texte_soumis }}</textarea>
+    {% if erreur %}<p class="erreur">{{ erreur }}</p>{% endif %}
+    <button type="submit">Analyser mon signalement</button>
+    <p class="confidentialite">Ton signalement est traité de façon confidentielle et sert uniquement à détecter les arnaques en cours.</p>
+  </form>
+
+  {% if resultat %}
+  <section class="resultat">
+    <div class="resultat-header">
+      <span class="categorie-badge">{{ resultat.categorie }}</span>
+      <span class="confiance-tag">confiance {{ resultat.confiance_pct }}%</span>
+    </div>
+    <div class="resultat-body">
+
+      <div class="score-ligne">
+        <span class="score-chiffre">{{ resultat.score }}</span>
+        <span class="score-label">/ 100 — niveau de risque</span>
+      </div>
+      <div class="signal {{ resultat.niveau }}">
+        <div class="barre"></div>
+        <div class="barre"></div>
+        <div class="barre"></div>
+        <div class="barre"></div>
+        <div class="barre"></div>
+      </div>
+
+      {% if resultat.mots_importants %}
+      <p class="section-titre">Éléments qui ont motivé cette analyse</p>
+      <div class="chips">
+        {% for mot in resultat.mots_importants %}
+        <span class="chip">{{ mot }}</span>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      {% if resultat.telephones or resultat.liens or resultat.montants %}
+      <p class="section-titre">Éléments détectés</p>
+      <div>
+        {% for tel in resultat.telephones %}<span class="entite">{{ tel }}</span>{% endfor %}
+        {% for lien in resultat.liens %}<span class="entite">{{ lien }}</span>{% endfor %}
+        {% for montant in resultat.montants %}<span class="entite">{{ montant }}</span>{% endfor %}
+      </div>
+      {% endif %}
+
+      {% if resultat.campagne_detectee %}
+      <div class="alerte-campagne">
+        Alerte : ce numéro ou ce lien est déjà lié à {{ resultat.signalements_lies }} autre(s) signalement(s). Il s'agit probablement d'une campagne active.
+      </div>
+      {% endif %}
+
+      <p class="confirmation">Signalement n°{{ resultat.id }} enregistré. Merci d'avoir signalé cette tentative.</p>
+    </div>
+  </section>
+  {% endif %}
+</main>
+
+</body>
+</html>

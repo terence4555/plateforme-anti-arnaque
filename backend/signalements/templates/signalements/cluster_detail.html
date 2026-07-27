@@ -1,0 +1,222 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cluster #{{ cluster.id }} — Signalements</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #12203B;
+    --ink-soft: #3C4A63;
+    --paper: #EDEFE9;
+    --paper-raised: #FFFFFF;
+    --gold: #E3A23B;
+    --gold-soft: #F4DBAE;
+    --green: #2E6B52;
+    --red: #B8432E;
+    --line: #D7D9CF;
+    --radius: 14px;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'IBM Plex Sans', sans-serif;
+    line-height: 1.5;
+  }
+
+  .top-bar {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .top-bar .brand { display: flex; align-items: center; gap: 10px; }
+  .top-bar .mark {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: var(--gold);
+    box-shadow: 0 0 0 4px rgba(227,162,59,0.25);
+  }
+  .top-bar span.titre {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+  .top-bar a {
+    color: var(--paper);
+    text-decoration: none;
+    font-size: 0.85rem;
+    border: 1px solid rgba(255,255,255,0.3);
+    padding: 6px 12px;
+    border-radius: 20px;
+  }
+  .top-bar a:hover { border-color: var(--gold); }
+
+  main {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 32px 20px 80px;
+  }
+
+  .fil-ariane {
+    font-size: 0.85rem;
+    margin-bottom: 14px;
+  }
+  .fil-ariane a { color: var(--ink-soft); text-decoration: none; }
+  .fil-ariane a:hover { text-decoration: underline; }
+
+  h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 1.6rem;
+    margin: 0 0 10px;
+  }
+
+  .bandeau-cluster {
+    background: var(--paper-raised);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 18px;
+    margin-bottom: 24px;
+  }
+
+  .mots-cles {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+    margin-bottom: 10px;
+  }
+
+  .statut-badge {
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 20px;
+    display: inline-block;
+  }
+  .statut-badge.a_examiner { background: var(--gold-soft); color: #8a5a12; }
+  .statut-badge.confirme { background: #dcefe4; color: var(--green); }
+  .statut-badge.rejete { background: #f6dbd5; color: var(--red); }
+
+  .note-validation {
+    margin-top: 12px;
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+    border-top: 1px solid var(--line);
+    padding-top: 12px;
+  }
+  .note-validation code {
+    background: var(--paper);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  .liste-signalements {
+    background: var(--paper-raised);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+
+  .ligne-signalement {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--line);
+  }
+  .ligne-signalement:last-child { border-bottom: none; }
+
+  .ligne-signalement .texte-extrait {
+    font-size: 0.92rem;
+    margin: 0 0 6px;
+  }
+
+  .ligne-signalement .meta {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--ink-soft);
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+
+  .pagination {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 18px;
+  }
+  .pagination a, .pagination span {
+    padding: 6px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    text-decoration: none;
+    color: var(--ink);
+    font-size: 0.85rem;
+  }
+  .pagination .actuelle { background: var(--ink); color: var(--paper); }
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <div class="brand">
+    <div class="mark"></div>
+    <span class="titre">SignalArnaque Togo</span>
+  </div>
+  <a href="{% url 'signalements:liste_clusters' %}">← Tous les clusters</a>
+</div>
+
+<main>
+  <div class="fil-ariane">
+    <a href="{% url 'signalements:liste_clusters' %}">Clusters émergents</a> / Cluster #{{ cluster.id }}
+  </div>
+
+  <h1>{% if cluster.nom_valide %}{{ cluster.nom_valide }}{% else %}Cluster #{{ cluster.id }} (non nommé){% endif %}</h1>
+
+  <div class="bandeau-cluster">
+    <div class="mots-cles">Mots-clés : {{ cluster.mots_cles }}</div>
+    <span class="statut-badge {{ cluster.statut }}">
+      {% if cluster.statut == "a_examiner" %}À examiner{% elif cluster.statut == "confirme" %}Confirmé comme nouvelle catégorie{% else %}Rejeté (bruit){% endif %}
+    </span>
+    <div class="note-validation">
+      Pour donner un nom à ce cluster ou changer son statut, va dans l'admin
+      Django (<code>/admin/signalements/clusteremergent/{{ cluster.id }}/change/</code>).
+    </div>
+  </div>
+
+  <div class="liste-signalements">
+    {% for s in page %}
+    <div class="ligne-signalement">
+      <p class="texte-extrait">{{ s.texte }}</p>
+      <div class="meta">
+        <span>confiance {{ s.confiance|floatformat:2 }}</span>
+        <span>risque {{ s.score_risque }}/100</span>
+        <span>{{ s.date_creation|date:"d/m/Y H:i" }}</span>
+      </div>
+    </div>
+    {% empty %}
+    <div class="ligne-signalement">Aucun signalement rattaché.</div>
+    {% endfor %}
+  </div>
+
+  {% if page.paginator.num_pages > 1 %}
+  <div class="pagination">
+    {% if page.has_previous %}<a href="?page={{ page.previous_page_number }}">← Précédent</a>{% endif %}
+    <span class="actuelle">{{ page.number }} / {{ page.paginator.num_pages }}</span>
+    {% if page.has_next %}<a href="?page={{ page.next_page_number }}">Suivant →</a>{% endif %}
+  </div>
+  {% endif %}
+</main>
+
+</body>
+</html>

@@ -1,0 +1,343 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tableau de bord — Signalements</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #12203B;
+    --ink-soft: #3C4A63;
+    --paper: #EDEFE9;
+    --paper-raised: #FFFFFF;
+    --gold: #E3A23B;
+    --gold-soft: #F4DBAE;
+    --green: #2E6B52;
+    --red: #B8432E;
+    --line: #D7D9CF;
+    --radius: 14px;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'IBM Plex Sans', sans-serif;
+    line-height: 1.5;
+  }
+
+  .top-bar {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .top-bar .brand { display: flex; align-items: center; gap: 10px; }
+
+  .top-bar .mark {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: var(--gold);
+    box-shadow: 0 0 0 4px rgba(227,162,59,0.25);
+  }
+
+  .top-bar span.titre {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+
+  .top-bar a {
+    color: var(--paper);
+    text-decoration: none;
+    font-size: 0.85rem;
+    border: 1px solid rgba(255,255,255,0.3);
+    padding: 6px 12px;
+    border-radius: 20px;
+  }
+  .top-bar a:hover { border-color: var(--gold); }
+
+  main {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 32px 20px 80px;
+  }
+
+  h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 1.7rem;
+    margin: 0 0 6px;
+  }
+
+  .sous-titre { color: var(--ink-soft); margin: 0 0 24px; }
+
+  /* Cartes de comptage par catégorie */
+  .grille-categories {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 10px;
+    margin-bottom: 28px;
+  }
+
+  .carte-categorie {
+    background: var(--paper-raised);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 14px 16px;
+    text-decoration: none;
+    color: var(--ink);
+    transition: border-color 0.15s ease, transform 0.1s ease;
+  }
+  .carte-categorie:hover { border-color: var(--gold); }
+  .carte-categorie.active { border-color: var(--ink); background: var(--gold-soft); }
+
+  .carte-categorie .nombre {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 1.6rem;
+    display: block;
+  }
+  .carte-categorie .nom {
+    font-size: 0.8rem;
+    color: var(--ink-soft);
+  }
+
+  .carte-categorie.toutes { border-style: dashed; }
+
+  /* Liste des signalements */
+  .barre-filtre {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+
+  .barre-filtre .info { font-size: 0.9rem; color: var(--ink-soft); }
+
+  .liste-signalements {
+    background: var(--paper-raised);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+
+  .ligne-signalement {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+  .ligne-signalement:last-child { border-bottom: none; }
+
+  .ligne-signalement .badge {
+    flex-shrink: 0;
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 4px 9px;
+    border-radius: 20px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    white-space: nowrap;
+  }
+
+  .ligne-signalement .contenu { flex: 1; min-width: 0; }
+
+  .ligne-signalement .texte-extrait {
+    font-size: 0.92rem;
+    margin: 0 0 6px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+
+  .ligne-signalement .meta {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--ink-soft);
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+
+  .vide {
+    padding: 40px 20px;
+    text-align: center;
+    color: var(--ink-soft);
+  }
+
+  .action-admin { margin-top: 8px; }
+
+  .bouton-transmettre {
+    background: var(--ink); color: var(--paper); border: none;
+    padding: 7px 14px; border-radius: 8px; font-size: 0.78rem; font-weight: 600;
+    cursor: pointer; font-family: 'IBM Plex Sans', sans-serif;
+  }
+  .bouton-transmettre:hover { background: #1c2f52; }
+
+  .badge-transmis {
+    display: inline-block; background: #E7F3ED; color: var(--green);
+    border-radius: 20px; padding: 5px 12px; font-size: 0.78rem; font-weight: 600;
+  }
+
+  .messages { max-width: 920px; margin: 0 auto; padding: 16px 20px 0; list-style: none; }
+  .messages li {
+    border-radius: 10px; padding: 10px 14px; font-size: 0.88rem; font-weight: 600; margin-bottom: 8px;
+  }
+  .messages li.success { background: #E7F3ED; color: var(--green); border: 1px solid var(--green); }
+  .messages li.warning { background: #FBF3E3; color: #8A6D1F; border: 1px solid var(--gold); }
+  .messages li.error { background: #FBEBE7; color: var(--red); border: 1px solid var(--red); }
+
+  .pagination {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 18px;
+  }
+  .pagination a, .pagination span {
+    padding: 6px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    text-decoration: none;
+    color: var(--ink);
+    font-size: 0.85rem;
+  }
+  .pagination .actuelle { background: var(--ink); color: var(--paper); }
+
+  @media (max-width: 480px) {
+    .grille-categories { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  .bandeau-alertes {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 16px 20px 0;
+  }
+  .alerte {
+    background: #FBEBE7;
+    border: 1px solid var(--red);
+    color: var(--red);
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <div class="brand">
+    <div class="mark"></div>
+    <span class="titre">SignalArnaque Togo</span>
+  </div>
+  <div style="display:flex; gap:8px;">
+    <a href="{% url 'signalements:statistiques' %}">Statistiques</a>
+    <a href="{% url 'signalements:alertes_actives' %}">Alertes</a>
+    <a href="{% url 'signalements:liste_clusters' %}">Clusters émergents</a>
+    <a href="{% url 'signalements:signaler' %}">+ Nouveau signalement</a>
+  </div>
+</div>
+
+{% if alertes %}
+<div class="bandeau-alertes">
+  {% for a in alertes %}
+  <div class="alerte">{{ a.message }}</div>
+  {% endfor %}
+</div>
+{% endif %}
+
+{% if messages %}
+<ul class="messages">
+  {% for message in messages %}
+  <li class="{{ message.tags }}">{{ message }}</li>
+  {% endfor %}
+</ul>
+{% endif %}
+
+<main>
+  <h1>Tableau de bord</h1>
+  <p class="sous-titre">{{ total_general }} signalement{{ total_general|pluralize }} au total. Clique sur une catégorie pour voir uniquement ce qu'elle contient.</p>
+
+  <div class="grille-categories">
+    <a href="{% url 'signalements:tableau_de_bord' %}" class="carte-categorie toutes {% if not categorie_filtree %}active{% endif %}">
+      <span class="nombre">{{ total_general }}</span>
+      <span class="nom">Toutes catégories</span>
+    </a>
+    {% for c in comptes_par_categorie %}
+    <a href="?categorie={{ c.categorie_predite|urlencode }}" class="carte-categorie {% if categorie_filtree == c.categorie_predite %}active{% endif %}">
+      <span class="nombre">{{ c.total }}</span>
+      <span class="nom">{{ c.categorie_predite }}</span>
+    </a>
+    {% endfor %}
+  </div>
+
+  <div class="barre-filtre">
+    <span class="info">
+      {% if categorie_filtree %}
+        Signalements dans « {{ categorie_filtree }} »
+      {% else %}
+        Tous les signalements, du plus récent au plus ancien
+      {% endif %}
+    </span>
+  </div>
+
+  <div class="liste-signalements">
+    {% for s in page %}
+    <div class="ligne-signalement">
+      <span class="badge">{{ s.categorie_predite }}</span>
+      <div class="contenu">
+        <p class="texte-extrait">{{ s.texte }}</p>
+        <div class="meta">
+          <span>confiance {{ s.confiance|floatformat:2 }}</span>
+          <span>risque {{ s.score_risque }}/100</span>
+          {% if s.campagne_detectee %}<span style="color: var(--red);">campagne détectée</span>{% endif %}
+          <span>{{ s.date_creation|date:"d/m/Y H:i" }}</span>
+        </div>
+        {% if est_admin %}
+        <div class="action-admin">
+          {% if s.dossier %}
+            <span class="badge-transmis">✓ Transmis à l'autorité</span>
+          {% else %}
+            <form method="post" action="{% url 'signalements:transmettre_signalement' s.id %}" style="display:inline;">
+              {% csrf_token %}
+              <button type="submit" class="bouton-transmettre">Transmettre à l'autorité compétente</button>
+            </form>
+          {% endif %}
+        </div>
+        {% endif %}
+      </div>
+    </div>
+    {% empty %}
+    <div class="vide">Aucun signalement dans cette catégorie pour l'instant.</div>
+    {% endfor %}
+  </div>
+
+  {% if page.paginator.num_pages > 1 %}
+  <div class="pagination">
+    {% if page.has_previous %}
+      <a href="?categorie={{ categorie_filtree|urlencode }}&page={{ page.previous_page_number }}">← Précédent</a>
+    {% endif %}
+    <span class="actuelle">{{ page.number }} / {{ page.paginator.num_pages }}</span>
+    {% if page.has_next %}
+      <a href="?categorie={{ categorie_filtree|urlencode }}&page={{ page.next_page_number }}">Suivant →</a>
+    {% endif %}
+  </div>
+  {% endif %}
+</main>
+
+</body>
+</html>

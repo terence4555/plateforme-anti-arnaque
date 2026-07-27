@@ -1,0 +1,175 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alertes actives — Signalements</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #12203B;
+    --ink-soft: #3C4A63;
+    --paper: #EDEFE9;
+    --paper-raised: #FFFFFF;
+    --gold: #E3A23B;
+    --gold-soft: #F4DBAE;
+    --green: #2E6B52;
+    --red: #B8432E;
+    --line: #D7D9CF;
+    --radius: 14px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'IBM Plex Sans', sans-serif;
+    line-height: 1.5;
+  }
+  .top-bar {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .top-bar .brand { display: flex; align-items: center; gap: 10px; }
+  .top-bar .mark {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: var(--gold);
+    box-shadow: 0 0 0 4px rgba(227,162,59,0.25);
+  }
+  .top-bar span.titre {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+  .top-bar a {
+    color: var(--paper);
+    text-decoration: none;
+    font-size: 0.85rem;
+    border: 1px solid rgba(255,255,255,0.3);
+    padding: 6px 12px;
+    border-radius: 20px;
+  }
+  .top-bar a:hover { border-color: var(--gold); }
+  .top-bar .liens { display: flex; gap: 8px; }
+
+  main { max-width: 800px; margin: 0 auto; padding: 32px 20px 80px; }
+
+  h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 1.7rem;
+    margin: 0 0 6px;
+  }
+  .sous-titre { color: var(--ink-soft); margin: 0 0 26px; }
+
+  .section-alertes { margin-bottom: 28px; }
+  .section-alertes h2 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.05rem;
+    margin: 0 0 4px;
+  }
+  .section-alertes .explication {
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+    margin: 0 0 12px;
+  }
+
+  .carte-alerte {
+    background: var(--paper-raised);
+    border: 1px solid var(--red);
+    border-left: 4px solid var(--red);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    font-size: 0.92rem;
+    color: var(--ink);
+  }
+
+  .vide {
+    background: var(--paper-raised);
+    border: 1px dashed var(--line);
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    color: var(--ink-soft);
+    font-size: 0.9rem;
+  }
+
+  .total-badge {
+    display: inline-block;
+    background: var(--gold-soft);
+    color: var(--ink);
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 20px;
+  }
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <div class="brand">
+    <div class="mark"></div>
+    <span class="titre">SignalArnaque Togo</span>
+  </div>
+  <div class="liens">
+    <a href="{% url 'signalements:statistiques' %}">Statistiques</a>
+    <a href="{% url 'signalements:liste_clusters' %}">Clusters émergents</a>
+    <a href="{% url 'signalements:signaler' %}">+ Nouveau signalement</a>
+  </div>
+</div>
+
+<main>
+  <h1>Alertes actives</h1>
+  <p class="sous-titre">Tous les messages d'alerte générés automatiquement en ce moment, classés selon ce qui les a déclenchés.</p>
+  <span class="total-badge">{{ total_alertes }} alerte{{ total_alertes|pluralize }} active{{ total_alertes|pluralize }}</span>
+
+  <div class="section-alertes">
+    <h2>Campagnes détectées</h2>
+    <p class="explication">Un même numéro ou lien réutilisé dans au moins 3 signalements différents.</p>
+    {% if alertes_campagnes %}
+      {% for a in alertes_campagnes %}
+      <div class="carte-alerte">{{ a.message }}</div>
+      {% endfor %}
+    {% else %}
+      <div class="vide">Aucune campagne active détectée pour l'instant.</div>
+    {% endif %}
+  </div>
+
+  <div class="section-alertes">
+    <h2>Nouveaux types d'arnaque confirmés</h2>
+    <p class="explication">Clusters émergents (détectés par clustering) qu'un modérateur a validés comme un vrai nouveau phénomène.</p>
+    {% if alertes_clusters %}
+      {% for a in alertes_clusters %}
+      <div class="carte-alerte">{{ a.message }}</div>
+      {% endfor %}
+    {% else %}
+      <div class="vide">Aucun nouveau type d'arnaque confirmé pour l'instant.</div>
+    {% endif %}
+  </div>
+
+  <div class="section-alertes">
+    <h2>Tendances en hausse</h2>
+    <p class="explication">Une catégorie précise dont le nombre de signalements a nettement augmenté sur les 7 derniers jours.</p>
+    {% if alertes_tendances %}
+      {% for a in alertes_tendances %}
+      <div class="carte-alerte">{{ a.message }}</div>
+      {% endfor %}
+    {% else %}
+      <div class="vide">Aucune tendance à la hausse détectée pour l'instant.</div>
+    {% endif %}
+  </div>
+</main>
+
+</body>
+</html>
