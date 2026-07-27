@@ -132,9 +132,12 @@ class SignalementViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=["get"])
     def stats(self, request):
+        from django.contrib.auth import get_user_model
+        User = get_user_model()
         total = Signalement.objects.count()
         return Response({
             "total": total,
+            "utilisateurs": User.objects.filter(est_actif=True).count(),
             "approuves": Signalement.objects.filter(statut="approuve").count(),
             "en_attente": Signalement.objects.filter(statut="en_attente").count(),
             "rejetes": Signalement.objects.filter(statut="rejete").count(),

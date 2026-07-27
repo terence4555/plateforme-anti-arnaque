@@ -93,8 +93,18 @@ function SignalementCreate() {
       const { data } = await api.post('/signalements/', payload);
       navigate(`/signalements/${data.id_signalement}`);
     } catch (err) {
-      const msg = err.response?.data?.error || err.response?.data?.detail || 'Une erreur est survenue.';
-      setServerError(typeof msg === 'string' ? msg : JSON.stringify(msg));
+      let msg = 'Une erreur est survenue.';
+      if (err.response?.data) {
+        const d = err.response.data;
+        if (typeof d === 'string') msg = d;
+        else if (d.error) msg = d.error;
+        else if (d.detail) msg = d.detail;
+        else if (d.non_field_errors) msg = Array.isArray(d.non_field_errors) ? d.non_field_errors[0] : d.non_field_errors;
+        else msg = JSON.stringify(d);
+      } else if (err.message) {
+        msg = err.message;
+      }
+      setServerError(msg);
     } finally {
       setLoading(false);
     }

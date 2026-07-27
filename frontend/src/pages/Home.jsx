@@ -14,7 +14,7 @@ function Home() {
     api.get('/signalements/stats/').then(({ data }) => {
       setStats({
         signalements: data.total || 0,
-        utilisateurs: 0,
+        utilisateurs: data.utilisateurs || 0,
         verification: 92,
       });
     }).catch(() => {});
@@ -22,10 +22,6 @@ function Home() {
     api.get('/signalements/?page_size=5').then(({ data }) => {
       const items = data.results || data;
       setRecentSignalements(Array.isArray(items) ? items.slice(0, 5) : []);
-    }).catch(() => {});
-
-    api.get('/auth/me/').then(({ data }) => {
-      setStats(prev => ({ ...prev, utilisateurs: data.signalements_count || 0 }));
     }).catch(() => {});
   }, []);
 

@@ -14,6 +14,8 @@ function SignalementDetail() {
   const [voteStatus, setVoteStatus] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [voteError, setVoteError] = useState('');
+  const [commentError, setCommentError] = useState('');
 
   useEffect(() => {
     api.get(`/signalements/${id}/`).then(({ data }) => {
@@ -32,6 +34,7 @@ function SignalementDetail() {
 
   const handleVote = async (type) => {
     if (!user) return window.location.href = '/connexion';
+    setVoteError('');
     try {
       await api.post('/votes/', {
         id_signalement: parseInt(id),
@@ -40,8 +43,8 @@ function SignalementDetail() {
       setVoteStatus(type);
       const { data } = await api.get(`/signalements/${id}/`);
       setSignalement(data);
-    } catch {
-      // ignore
+    } catch (err) {
+      setVoteError(err.response?.data?.error || 'Erreur lors du vote. Vérifiez que vous êtes connecté.');
     }
   };
 
@@ -49,6 +52,7 @@ function SignalementDetail() {
     e.preventDefault();
     if (!user) return window.location.href = '/connexion';
     if (!nouveauCommentaire.trim()) return;
+    setCommentError('');
 
     try {
       const { data } = await api.post('/commentaires/', {
@@ -60,8 +64,8 @@ function SignalementDetail() {
         auteur_nom: `${user.prenom} ${user.nom}`,
       }]);
       setNouveauCommentaire('');
-    } catch {
-      // ignore
+    } catch (err) {
+      setCommentError(err.response?.data?.error || err.response?.data?.contenu || 'Erreur lors de l\'ajout du commentaire.');
     }
   };
 
@@ -151,6 +155,7 @@ function SignalementDetail() {
               </button>
             </div>
           </div>
+          {voteError && <p className="vote-error-msg">{voteError}</p>}
 
           {preuvesVisible && signalement.preuves && (
             <div className="preuves-list">
@@ -177,6 +182,7 @@ function SignalementDetail() {
               onChange={(e) => setNouveauCommentaire(e.target.value)}
               rows={3}
             />
+            {commentError && <p className="comment-error-msg">{commentError}</p>}
             <button type="submit" className="btn-ajouter">Ajouter</button>
           </form>
 
