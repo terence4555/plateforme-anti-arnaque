@@ -3,6 +3,9 @@ Django settings — plateforme anti-arnaque.
 """
 import os
 from pathlib import Path
+from dotenv import load_dotenv
+
+load_dotenv(Path(__file__).resolve().parent.parent / ".env")
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -28,6 +31,7 @@ INSTALLED_APPS = [
     "votes",
     "score",
     "administration",
+    "chatbot",
 ]
 
 MIDDLEWARE = [
@@ -134,4 +138,12 @@ MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# ==============================
+# SESSION & CSRF
+# ==============================
+SESSION_COOKIE_SAMESITE = "Lax"
+CSRF_COOKIE_SAMESITE = "Lax"
+CSRF_COOKIE_HTTPONLY = False
+SESSION_COOKIE_HTTPONLY = True
 
