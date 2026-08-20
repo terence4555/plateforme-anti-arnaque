@@ -1,4 +1,4 @@
-from django.db import models
+﻿from django.db import models
 
 
 class ClusterEmergent(models.Model):
@@ -146,3 +146,62 @@ class EntiteSignalement(models.Model):
 
     def __str__(self):
         return f"{self.type_entite}: {self.valeur}"
+class Signalement(models.Model):
+    TYPE_CHOICES = [
+        ("faux_vendeur", "Faux vendeur"),
+        ("phishing", "Hameconnage (phishing)"),
+        ("usurpation_identite", "Usurpation d'identite"),
+        ("produit_non_livre", "Produit non livre"),
+        ("autre", "Autre type d'arnaque"),
+    ]
+    STATUT_CHOICES = [
+        ("en_attente", "En attente"),
+        ("approuve", "Approuve"),
+        ("rejete", "Rejete"),
+        ("transmis", "Transmis a l'autorite"),
+        ("confirme", "Confirme par l'autorite"),
+        ("infirme", "Infirme par l'autorite"),
+    ]
+
+    id_signalement = models.AutoField(primary_key=True)
+    id_utilisateur = models.ForeignKey(
+        "users.User", on_delete=models.CASCADE,
+        db_column="id_utilisateur", related_name="signalements",
+    )
+    numero_telephone = models.CharField(max_length=20, blank=True, null=True)
+    profil_vendeur = models.CharField(max_length=100, blank=True, null=True)
+    type_arnaque = models.CharField(max_length=30, choices=TYPE_CHOICES)
+    description = models.TextField()
+    date_signalement = models.DateTimeField(auto_now_add=True)
+    statut = models.CharField(max_length=15, choices=STATUT_CHOICES, default="en_attente")
+    score = models.PositiveSmallIntegerField(default=100)
+
+    class Meta:
+        db_table = "Signalement"
+        managed = False
+        ordering = ["-date_signalement"]
+
+    def __str__(self):
+        identifiant = self.profil_vendeur or self.numero_telephone or f"#{self.id_signalement}"
+        return f"{self.get_type_arnaque_display()} - {identifiant}"
+
+
+class Preuve(models.Model):
+    TYPE_CHOICES = [("image", "Image"), ("pdf", "PDF"), ("document", "Document")]
+
+    id_preuve = models.AutoField(primary_key=True)
+    id_signalement = models.ForeignKey(
+        Signalement, on_delete=models.CASCADE,
+        db_column="id_signalement", related_name="preuves",
+    )
+    fichier_url = models.CharField(max_length=300)
+    type_fichier = models.CharField(max_length=10, choices=TYPE_CHOICES)
+    date_upload = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "Preuve"
+        managed = False
+        ordering = ["date_upload"]
+
+    def __str__(self):
+        return f"Preuve {self.id_preuve} - Signalement #{self.id_signalement_id}"

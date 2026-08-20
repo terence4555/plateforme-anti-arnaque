@@ -16,3 +16,11 @@ urlpatterns = [
     path("dossiers/<int:dossier_id>/", views.dossier_detail, name="dossier_detail"),
     path("dossiers/<int:dossier_id>/pdf/", views.dossier_pdf, name="dossier_pdf"),
 ]
+﻿from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from .views import SignalementViewSet
+
+router = DefaultRouter()
+router.register("", SignalementViewSet, basename="signalement")
+
+urlpatterns = [path("", include(router.urls))]
