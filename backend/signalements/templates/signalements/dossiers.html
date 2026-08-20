@@ -1,0 +1,114 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dossiers transmis — Autorité compétente</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #12203B; --ink-soft: #3C4A63; --paper: #EDEFE9; --paper-raised: #FFFFFF;
+    --gold: #E3A23B; --gold-soft: #F4DBAE; --green: #2E6B52; --red: #B8432E;
+    --line: #D7D9CF; --radius: 14px;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--paper); color: var(--ink); font-family: 'IBM Plex Sans', sans-serif; line-height: 1.5; }
+
+  .top-bar { background: var(--ink); color: var(--paper); padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; }
+  .top-bar .brand { display: flex; align-items: center; gap: 10px; }
+  .top-bar .mark { width: 10px; height: 10px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 0 4px rgba(227,162,59,0.25); }
+  .top-bar span.titre { font-family: 'Space Grotesk', sans-serif; font-weight: 700; letter-spacing: 0.02em; }
+  .top-bar .badge-role { font-size: 0.75rem; background: var(--gold); color: var(--ink); padding: 4px 10px; border-radius: 20px; font-weight: 600; }
+
+  main { max-width: 920px; margin: 0 auto; padding: 32px 20px 80px; }
+  h1 { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 1.7rem; margin: 0 0 6px; }
+  .sous-titre { color: var(--ink-soft); margin: 0 0 24px; }
+
+  .grille-statuts { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; margin-bottom: 26px; }
+  .carte-statut {
+    background: var(--paper-raised); border: 1px solid var(--line); border-radius: 10px;
+    padding: 12px 14px; text-decoration: none; color: var(--ink);
+  }
+  .carte-statut:hover { border-color: var(--gold); }
+  .carte-statut.active { border-color: var(--ink); background: var(--gold-soft); }
+  .carte-statut .nombre { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 1.4rem; display: block; }
+  .carte-statut .nom { font-size: 0.78rem; color: var(--ink-soft); }
+  .carte-statut.toutes { border-style: dashed; }
+
+  .liste-dossiers { background: var(--paper-raised); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
+  .ligne-dossier {
+    padding: 14px 18px; border-bottom: 1px solid var(--line);
+    display: flex; gap: 14px; align-items: flex-start; text-decoration: none; color: var(--ink);
+  }
+  .ligne-dossier:last-child { border-bottom: none; }
+  .ligne-dossier:hover { background: var(--paper); }
+  .ligne-dossier .badge { flex-shrink: 0; font-size: 0.72rem; font-weight: 600; padding: 4px 9px; border-radius: 20px; background: var(--paper); border: 1px solid var(--line); white-space: nowrap; }
+  .ligne-dossier .contenu { flex: 1; min-width: 0; }
+  .ligne-dossier .texte-extrait { font-size: 0.92rem; margin: 0 0 6px; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+  .ligne-dossier .meta { font-family: 'IBM Plex Mono', monospace; font-size: 0.75rem; color: var(--ink-soft); display: flex; gap: 14px; flex-wrap: wrap; }
+
+  .vide { padding: 40px 20px; text-align: center; color: var(--ink-soft); }
+  .pagination { display: flex; justify-content: center; gap: 8px; margin-top: 18px; }
+  .pagination a, .pagination span { padding: 6px 12px; border-radius: 8px; border: 1px solid var(--line); text-decoration: none; color: var(--ink); font-size: 0.85rem; }
+  .pagination .actuelle { background: var(--ink); color: var(--paper); }
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <div class="brand">
+    <div class="mark"></div>
+    <span class="titre">SignalArnaque Togo</span>
+  </div>
+  <span class="badge-role">Espace Autorité compétente</span>
+</div>
+
+<main>
+  <h1>Dossiers transmis</h1>
+  <p class="sous-titre">{{ total_general }} dossier{{ total_general|pluralize }} transmis au total. Clique sur un dossier pour l'examiner.</p>
+
+  <div class="grille-statuts">
+    <a href="{% url 'signalements:dossiers_liste' %}" class="carte-statut toutes {% if not statut_filtre %}active{% endif %}">
+      <span class="nombre">{{ total_general }}</span>
+      <span class="nom">Tous</span>
+    </a>
+    {% for s in comptes_par_statut %}
+    <a href="?statut={{ s.statut }}" class="carte-statut {% if statut_filtre == s.statut %}active{% endif %}">
+      <span class="nombre">{{ s.total }}</span>
+      <span class="nom">{{ s.statut }}</span>
+    </a>
+    {% endfor %}
+  </div>
+
+  <div class="liste-dossiers">
+    {% for dossier in page %}
+    <a class="ligne-dossier" href="{% url 'signalements:dossier_detail' dossier.id %}">
+      <span class="badge">{{ dossier.get_statut_display }}</span>
+      <div class="contenu">
+        <p class="texte-extrait">{{ dossier.signalement.texte }}</p>
+        <div class="meta">
+          <span>catégorie {{ dossier.signalement.categorie_predite }}</span>
+          <span>véracité : {{ dossier.get_veracite_display }}</span>
+          <span>transmis le {{ dossier.date_transmission|date:"d/m/Y H:i" }}</span>
+        </div>
+      </div>
+    </a>
+    {% empty %}
+    <div class="vide">Aucun dossier transmis pour l'instant.</div>
+    {% endfor %}
+  </div>
+
+  {% if page.paginator.num_pages > 1 %}
+  <div class="pagination">
+    {% if page.has_previous %}<a href="?statut={{ statut_filtre }}&page={{ page.previous_page_number }}">← Précédent</a>{% endif %}
+    <span class="actuelle">{{ page.number }} / {{ page.paginator.num_pages }}</span>
+    {% if page.has_next %}<a href="?statut={{ statut_filtre }}&page={{ page.next_page_number }}">Suivant →</a>{% endif %}
+  </div>
+  {% endif %}
+</main>
+
+</body>
+</html>

@@ -1,0 +1,272 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Statistiques — Signalements</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.5.0/chart.umd.min.js"></script>
+<style>
+  :root {
+    --ink: #12203B;
+    --ink-soft: #3C4A63;
+    --paper: #EDEFE9;
+    --paper-raised: #FFFFFF;
+    --gold: #E3A23B;
+    --gold-soft: #F4DBAE;
+    --green: #2E6B52;
+    --red: #B8432E;
+    --line: #D7D9CF;
+    --radius: 14px;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'IBM Plex Sans', sans-serif;
+    line-height: 1.5;
+  }
+
+  .top-bar {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .top-bar .brand { display: flex; align-items: center; gap: 10px; }
+  .top-bar .mark {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: var(--gold);
+    box-shadow: 0 0 0 4px rgba(227,162,59,0.25);
+  }
+  .top-bar span.titre {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+  .top-bar a {
+    color: var(--paper);
+    text-decoration: none;
+    font-size: 0.85rem;
+    border: 1px solid rgba(255,255,255,0.3);
+    padding: 6px 12px;
+    border-radius: 20px;
+  }
+  .top-bar a:hover { border-color: var(--gold); }
+  .top-bar .liens { display: flex; gap: 8px; }
+
+  .bandeau-alertes { max-width: 960px; margin: 0 auto; padding: 16px 20px 0; }
+  .alerte {
+    background: #FBEBE7;
+    border: 1px solid var(--red);
+    color: var(--red);
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+
+  main {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 32px 20px 80px;
+  }
+
+  h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 1.7rem;
+    margin: 0 0 6px;
+  }
+  .sous-titre { color: var(--ink-soft); margin: 0 0 22px; }
+
+  .selecteur-granularite {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 22px;
+  }
+  .selecteur-granularite a {
+    padding: 8px 16px;
+    border-radius: 20px;
+    border: 1px solid var(--line);
+    text-decoration: none;
+    color: var(--ink);
+    font-size: 0.88rem;
+    font-weight: 600;
+    background: var(--paper-raised);
+  }
+  .selecteur-granularite a.actif {
+    background: var(--ink);
+    color: var(--paper);
+    border-color: var(--ink);
+  }
+
+  .carte {
+    background: var(--paper-raised);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 22px;
+  }
+
+  .carte h2 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.05rem;
+    margin: 0 0 14px;
+  }
+
+  .stat-resume {
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+    margin-bottom: 16px;
+  }
+
+  table.tableau-stats {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+  }
+  table.tableau-stats th, table.tableau-stats td {
+    text-align: left;
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--line);
+  }
+  table.tableau-stats th {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    letter-spacing: 0.04em;
+  }
+  table.tableau-stats td.chiffre {
+    font-family: 'IBM Plex Mono', monospace;
+    text-align: right;
+  }
+
+  .puce-couleur {
+    display: inline-block;
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    margin-right: 6px;
+  }
+
+  .vide { text-align: center; color: var(--ink-soft); padding: 30px 0; }
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <div class="brand">
+    <div class="mark"></div>
+    <span class="titre">SignalArnaque Togo</span>
+  </div>
+  <div class="liens">
+    <a href="{% url 'signalements:tableau_de_bord' %}">Tableau de bord</a>
+    <a href="{% url 'signalements:alertes_actives' %}">Alertes</a>
+    <a href="{% url 'signalements:liste_clusters' %}">Clusters émergents</a>
+    <a href="{% url 'signalements:signaler' %}">+ Nouveau signalement</a>
+  </div>
+</div>
+
+{% if alertes %}
+<div class="bandeau-alertes">
+  {% for a in alertes %}
+  <div class="alerte">{{ a.message }}</div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<main>
+  <h1>Statistiques</h1>
+  <p class="sous-titre">Évolution des types d'arnaque dans le temps, pour repérer une tendance plutôt que des cas isolés.</p>
+
+  <div class="selecteur-granularite">
+    <a href="?granularite=jour" class="{% if granularite == 'jour' %}actif{% endif %}">Par jour</a>
+    <a href="?granularite=semaine" class="{% if granularite == 'semaine' %}actif{% endif %}">Par semaine</a>
+    <a href="?granularite=mois" class="{% if granularite == 'mois' %}actif{% endif %}">Par mois</a>
+    <a href="?granularite=annee" class="{% if granularite == 'annee' %}actif{% endif %}">Par année</a>
+  </div>
+
+  <div class="carte">
+    <h2>Évolution par catégorie</h2>
+    {% if labels_json == "[]" %}
+      <div class="vide">Pas assez de données sur cette période pour tracer un graphique.</div>
+    {% else %}
+      <canvas id="graphique-evolution" height="110"></canvas>
+    {% endif %}
+  </div>
+
+  <div class="carte">
+    <h2>Total par catégorie sur la période affichée</h2>
+    <p class="stat-resume">{{ total_general }} signalement{{ total_general|pluralize }} au total.</p>
+    {% if totaux %}
+    <table class="tableau-stats">
+      <thead>
+        <tr><th>Catégorie</th><th style="text-align:right;">Total</th><th style="text-align:right;">Part</th></tr>
+      </thead>
+      <tbody>
+        {% for t in totaux %}
+        <tr>
+          <td>{{ t.categorie_predite }}</td>
+          <td class="chiffre">{{ t.total }}</td>
+          <td class="chiffre">{% widthratio t.total total_general 100 %}%</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="vide">Aucun signalement sur cette période.</div>
+    {% endif %}
+  </div>
+</main>
+
+<script>
+  const labels = {{ labels_json|safe }};
+  const datasets = {{ datasets_json|safe }};
+
+  if (labels.length > 0) {
+    if (typeof Chart === 'undefined') {
+      document.getElementById('graphique-evolution').outerHTML =
+        '<p style="color:#B8432E;">Le graphique n\'a pas pu se charger (bibliothèque Chart.js indisponible). Vérifie ta connexion internet ou réessaie plus tard.</p>';
+    } else {
+      const ctx = document.getElementById('graphique-evolution');
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: datasets.map(d => ({
+            label: d.label,
+            data: d.data,
+            borderColor: d.couleur,
+            backgroundColor: d.couleur,
+            tension: 0.25,
+            pointRadius: 3,
+          })),
+        },
+        options: {
+          responsive: true,
+          interaction: { mode: 'index', intersect: false },
+          plugins: {
+            legend: { position: 'bottom', labels: { font: { family: 'IBM Plex Sans' } } },
+          },
+          scales: {
+            y: { beginAtZero: true, ticks: { precision: 0 } },
+          },
+        },
+      });
+    }
+  }
+</script>
+
+</body>
+</html>
