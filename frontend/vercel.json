@@ -1,0 +1,5 @@
+{
+  "rewrites": [
+    { "source": "/api/:path*", "destination": "https://plateforme-anti-arnaque-six.vercel.app/api/:path*" }
+  ]
+}
