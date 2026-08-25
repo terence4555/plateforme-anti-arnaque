@@ -26,7 +26,7 @@ class SHA256SaltBackend(BaseBackend):
             return user
 
         # Méthode 2 : SHA256(password + sel) — nouvelles inscriptions
-        salt_bytes = user.sel.bytes
+        salt_bytes = user.sel.lower().encode()
         if hashlib.sha256(password_bytes + salt_bytes).digest() == actual_hash:
             return user
 

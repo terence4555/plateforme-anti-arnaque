@@ -22,7 +22,7 @@ class Commentaire(models.Model):
 
     class Meta:
         db_table = "Commentaire"
-        managed = False
+        managed = True
         ordering = ["-date_commentaire"]
 
     def __str__(self):

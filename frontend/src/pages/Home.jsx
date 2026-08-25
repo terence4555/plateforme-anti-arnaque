@@ -87,7 +87,7 @@ function Home() {
           <form className="search-bar" onSubmit={handleSearch}>
             <input
               type="text"
-              placeholder="Entrez un numéro de téléphone ou un profil vendeur"
+              placeholder="Entrez un numéro de téléphone/email ou un profil vendeur"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -124,7 +124,7 @@ function Home() {
         <div className="feature-card">
           <div className="feature-icon-wrapper info">🔍</div>
           <h3>Vérifier un vendeur</h3>
-          <p>Recherchez un numéro ou un profil pour vérifier sa fiabilité.</p>
+          <p>Recherchez un numéro/email ou un profil pour vérifier sa fiabilité.</p>
           <Link to="/signalements" className="feature-link">Vérifier →</Link>
         </div>
         <div className="feature-card">

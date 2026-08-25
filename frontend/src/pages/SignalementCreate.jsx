@@ -11,6 +11,7 @@ function SignalementCreate() {
   const [formData, setFormData] = useState({
     numero_telephone: '',
     profil_vendeur: '',
+    email: '',
     type_arnaque: '',
     description: '',
   });
@@ -23,7 +24,7 @@ function SignalementCreate() {
   useEffect(() => {
     api.get('/signalements/types/').then(({ data }) => {
       setTypes(data);
-    }).catch(() => {});
+    }).catch(() => { });
   }, []);
 
   const handleChange = (e) => {
@@ -57,6 +58,10 @@ function SignalementCreate() {
     const errs = {};
     if (!formData.description.trim()) errs.description = 'La description est requise';
     if (!formData.type_arnaque) errs.type_arnaque = 'Sélectionnez un type';
+    if (!formData.numero_telephone.trim() && !formData.email.trim()) {
+      errs.numero_telephone = 'Renseignez au moins un numéro ou un email';
+      errs.email = 'Renseignez au moins un numéro ou un email';
+    }
     return errs;
   };
 
@@ -83,6 +88,7 @@ function SignalementCreate() {
       }
 
       const payload = {
+        email: formData.email.trim() || null,
         numero_telephone: formData.numero_telephone.trim() || null,
         profil_vendeur: formData.profil_vendeur.trim() || null,
         type_arnaque: formData.type_arnaque,
@@ -150,7 +156,22 @@ function SignalementCreate() {
                   value={formData.numero_telephone}
                   onChange={handleChange}
                   placeholder="+228 90 00 00 00"
+                  className={errors.numero_telephone ? 'input-error' : ''}
                 />
+                {errors.numero_telephone && <span className="field-error">{errors.numero_telephone}</span>}
+              </div>
+              <div className="form-group">
+                <label htmlFor="email">Email</label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  placeholder="exemple@mail.com"
+                  className={errors.email ? 'input-error' : ''}
+                />
+                {errors.email && <span className="field-error">{errors.email}</span>}
               </div>
               <div className="form-group">
                 <label htmlFor="profil_vendeur">Profil / Pseudo</label>

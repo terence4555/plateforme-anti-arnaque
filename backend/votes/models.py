@@ -23,7 +23,7 @@ class Vote(models.Model):
 
     class Meta:
         db_table = "Vote"
-        managed = False
+        managed = True
         unique_together = [("id_signalement", "id_utilisateur")]
         ordering = ["-date_vote"]
 

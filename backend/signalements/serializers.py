@@ -17,7 +17,7 @@ class SignalementListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Signalement
         fields = [
-            "id_signalement", "numero_telephone", "profil_vendeur",
+            "id_signalement", "id_utilisateur", "numero_telephone", "email", "profil_vendeur",
             "type_arnaque", "type_display", "statut", "statut_display",
             "score", "auteur_nom", "date_signalement",
         ]
@@ -40,7 +40,7 @@ class SignalementDetailSerializer(serializers.ModelSerializer):
         model = Signalement
         fields = [
             "id_signalement", "id_utilisateur", "auteur_nom",
-            "numero_telephone", "profil_vendeur",
+            "numero_telephone", "email", "profil_vendeur",
             "type_arnaque", "type_display",
             "description",
             "statut", "statut_display", "score",
@@ -65,4 +65,12 @@ class SignalementDetailSerializer(serializers.ModelSerializer):
 class SignalementCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Signalement
-        fields = ["numero_telephone", "profil_vendeur", "type_arnaque", "description"]
+        fields = ["id_signalement", "numero_telephone", "email", "profil_vendeur", "type_arnaque", "description"]
+        read_only_fields = ["id_signalement"]
+
+    def validate(self, attrs):
+        if not attrs.get("numero_telephone") and not attrs.get("email"):
+            raise serializers.ValidationError(
+                "Renseignez au moins un numéro de téléphone ou un email."
+            )
+        return attrs

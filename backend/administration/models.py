@@ -12,7 +12,7 @@ class JournalAudit(models.Model):
 
     class Meta:
         db_table = "JournalAudit"
-        managed = False
+        managed = True
         ordering = ["-date_action"]
 
     def __str__(self):

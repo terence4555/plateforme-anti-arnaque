@@ -1,4 +1,4 @@
-﻿"""
+"""
 Django settings — plateforme anti-arnaque.
 """
 import os
@@ -77,16 +77,14 @@ AUTHENTICATION_BACKENDS = [
 # ==============================
 DATABASES = {
     "default": {
-        "ENGINE": "mssql",
-        "NAME": os.environ.get("DB_NAME", "ArnaqueBD"),
-        "USER": os.environ.get("DB_USER", ""),
-        "PASSWORD": os.environ.get("DB_PASSWORD", ""),
-        "HOST": os.environ.get("DB_HOST", "localhost"),
-        "PORT": os.environ.get("DB_PORT", "1433"),
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.environ.get("DB_NAME", "neondb"),
+        "USER": os.environ.get("DB_USER", "neondb_owner"),
+        "PASSWORD": os.environ.get("DB_PASSWORD", "npg_g5KdQ0jNUSWX"),
+        "HOST": os.environ.get("DB_HOST", "ep-mute-tooth-aylxxl5z-pooler.c-5.us-east-2.aws.neon.tech"),
+        "PORT": os.environ.get("DB_PORT", "5432"),
         "OPTIONS": {
-            "driver": "ODBC Driver 17 for SQL Server",
-            "trusted_connection": "yes",
-            "extra_params": "TrustServerCertificate=yes;",
+            "sslmode": "require",
         },
     }
 }
@@ -96,6 +94,8 @@ DATABASES = {
 # ==============================
 CORS_ALLOW_ALL_ORIGINS = DEBUG
 CORS_ALLOWED_ORIGINS = ["http://localhost:5173", "http://127.0.0.1:5173"]
+
+CSRF_TRUSTED_ORIGINS = ["http://localhost:5173", "http://127.0.0.1:5173"]
 
 # ==============================
 # DRF
@@ -146,4 +146,12 @@ SESSION_COOKIE_SAMESITE = "Lax"
 CSRF_COOKIE_SAMESITE = "Lax"
 CSRF_COOKIE_HTTPONLY = False
 SESSION_COOKIE_HTTPONLY = True
+
+# ==============================
+# AZURE STORAGE
+# ==============================    
+
+AZURE_STORAGE_CONNECTION_STRING = os.environ.get("AZURE_STORAGE_CONNECTION_STRING")
+AZURE_ACCOUNT_NAME = os.environ.get("AZURE_ACCOUNT_NAME")
+AZURE_CONTAINER_NAME = os.environ.get("AZURE_CONTAINER_NAME", "preuves")
 

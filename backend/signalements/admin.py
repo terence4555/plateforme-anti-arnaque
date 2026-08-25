@@ -1,13 +1,13 @@
 from django.contrib import admin
-from .models import Signalement, EntiteSignalement, ClusterEmergent, Dossier
+from .models import Signalement, EntiteSignalement, ClusterEmergent, Dossier, Preuve
 
 
 class SignalementInlineCluster(admin.TabularInline):
     model = Signalement
     fk_name = "cluster_emergent"
     extra = 0
-    fields = ("id", "texte", "confiance")
-    readonly_fields = ("id", "texte", "confiance")
+    fields = ("id_signalement", "description", "confiance")
+    readonly_fields = ("id_signalement", "description", "confiance")
     can_delete = False
     max_num = 0  # lecture seule, on ne rajoute pas de signalement manuellement ici
 
@@ -38,32 +38,44 @@ class EntiteInline(admin.TabularInline):
     can_delete = False
 
 
+class PreuveInline(admin.TabularInline):
+    model = Preuve
+    extra = 0
+    fields = ("fichier_url", "type_fichier", "date_upload")
+    readonly_fields = ("date_upload",)
+
+
 @admin.register(Signalement)
 class SignalementAdmin(admin.ModelAdmin):
     """
-    Permet à un modérateur de consulter les signalements et de corriger une
-    prédiction fausse via 'categorie_corrigee'. Ces corrections constituent
-    la base d'un futur ré-entraînement du modèle (boucle d'amélioration
-    continue).
+    Permet à un modérateur de consulter les signalements, de gérer le
+    statut de modération métier, et de corriger une prédiction IA fausse
+    via 'categorie_corrigee'. Ces corrections constituent la base d'un
+    futur ré-entraînement du modèle (boucle d'amélioration continue).
     """
     list_display = (
-        "id", "categorie_predite", "categorie_corrigee", "confiance",
+        "id_signalement", "type_arnaque", "profil_vendeur", "statut",
+        "score", "categorie_predite", "categorie_corrigee", "confiance",
         "score_risque", "campagne_detectee", "cluster_emergent",
-        "a_un_dossier", "date_creation",
+        "a_un_dossier", "date_signalement",
     )
-    list_filter = ("categorie_predite", "campagne_detectee", "canal_detecte")
-    search_fields = ("texte",)
+    list_filter = ("type_arnaque", "statut", "categorie_predite", "campagne_detectee", "canal_detecte")
+    search_fields = ("description", "numero_telephone", "email", "profil_vendeur")
+    ordering = ["-date_signalement"]
     readonly_fields = (
-        "texte", "categorie_predite", "confiance", "score_risque",
+        "categorie_predite", "confiance", "score_risque",
         "canal_detecte", "campagne_detectee", "signalements_lies",
-        "date_creation", "bouton_transmission",
+        "date_signalement", "bouton_transmission",
     )
     fields = (
-        "texte", "categorie_predite", "categorie_corrigee", "confiance",
+        "id_utilisateur", "type_arnaque", "description", "numero_telephone", "email",
+        "profil_vendeur", "statut", "score",
+        "categorie_predite", "categorie_corrigee", "confiance",
         "score_risque", "canal_detecte", "campagne_detectee",
-        "signalements_lies", "bouton_transmission", "date_creation",
+        "signalements_lies", "cluster_emergent",
+        "bouton_transmission", "date_signalement",
     )
-    inlines = [EntiteInline]
+    inlines = [EntiteInline, PreuveInline]
     actions = ["transmettre_a_autorite"]
 
     @admin.display(boolean=True, description="Dossier transmis")
@@ -93,7 +105,7 @@ class SignalementAdmin(admin.ModelAdmin):
                 url_dossier, obj.dossier.id,
             )
 
-        url_transmettre = reverse("admin:signalements_signalement_transmettre", args=[obj.id])
+        url_transmettre = reverse("admin:signalements_signalement_transmettre", args=[obj.id_signalement])
         return format_html(
             '<a href="{}" style="display:inline-block; background:#12203B; color:#fff; '
             'padding:8px 16px; border-radius:8px; text-decoration:none; font-weight:600;">'
@@ -118,18 +130,18 @@ class SignalementAdmin(admin.ModelAdmin):
         from django.shortcuts import get_object_or_404, redirect
         from django.urls import reverse
 
-        signalement = get_object_or_404(Signalement, id=signalement_id)
+        signalement = get_object_or_404(Signalement, id_signalement=signalement_id)
         if not hasattr(signalement, "dossier"):
             Dossier.objects.create(signalement=signalement)
             self.message_user(
                 request,
-                f"Informations critiques du signalement #{signalement.id} transmises à l'autorité compétente."
+                f"Informations critiques du signalement #{signalement.id_signalement} transmises à l'autorité compétente."
             )
         else:
             self.message_user(
                 request, "Ce signalement avait déjà été transmis.", level="warning"
             )
-        return redirect(reverse("admin:signalements_signalement_change", args=[signalement.id]))
+        return redirect(reverse("admin:signalements_signalement_change", args=[signalement.id_signalement]))
 
     @admin.action(description="Transmettre à l'autorité compétente (créer un dossier)")
     def transmettre_a_autorite(self, request, queryset):
@@ -174,21 +186,8 @@ class EntiteSignalementAdmin(admin.ModelAdmin):
     list_display = ("id", "type_entite", "valeur", "signalement")
     list_filter = ("type_entite",)
     search_fields = ("valeur",)
-﻿from django.contrib import admin
-from .models import Signalement, Preuve
 
-class PreuveInline(admin.TabularInline):
-    model = Preuve
-    extra = 0
-
-@admin.register(Signalement)
-class SignalementAdmin(admin.ModelAdmin):
-    list_display = ["id_signalement", "type_arnaque", "numero_telephone", "profil_vendeur", "statut", "score", "date_signalement"]
-    list_filter = ["type_arnaque", "statut"]
-    search_fields = ["numero_telephone", "profil_vendeur", "description"]
-    ordering = ["-date_signalement"]
-    inlines = [PreuveInline]
 
 @admin.register(Preuve)
 class PreuveAdmin(admin.ModelAdmin):
-    list_display = ["id_preuve", "id_signalement", "type_fichier", "date_upload"]
+    list_display = ("id_preuve", "id_signalement", "type_fichier", "date_upload")

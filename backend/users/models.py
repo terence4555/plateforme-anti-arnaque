@@ -31,7 +31,7 @@ class User(AbstractBaseUser):
 
     password = models.BinaryField(max_length=256, db_column="mot_de_passe_hash")
     last_login = models.DateTimeField(null=True, blank=True, db_column="derniere_connexion")
-    sel = models.UUIDField()
+    sel = models.CharField(max_length=36, default="")
 
     ROLE_CHOICES = (
         ("user", "Utilisateur"),
@@ -67,14 +67,14 @@ class User(AbstractBaseUser):
         return self.role == "autorite"
 
     def set_password(self, raw_password):
-        self.sel = self.sel or __import__("uuid").uuid4()
-        self.password = hashlib.sha256(raw_password.encode() + self.sel.bytes).digest()
+        self.sel = self.sel or str(__import__("uuid").uuid4())
+        self.password = hashlib.sha256(raw_password.encode() + self.sel.lower().encode()).digest()
 
     def check_password(self, raw_password):
         actual = bytes(self.password)
         if hashlib.sha256(raw_password.encode()).digest() == actual:
             return True
-        if hashlib.sha256(raw_password.encode() + self.sel.bytes).digest() == actual:
+        if hashlib.sha256(raw_password.encode() + self.sel.lower().encode()).digest() == actual:
             return True
         return False
 
@@ -89,7 +89,7 @@ class User(AbstractBaseUser):
 
     class Meta:
         db_table = "Utilisateur"
-        managed = False
+        managed = True
 
     def __str__(self):
         return f"{self.prenom} {self.nom}"

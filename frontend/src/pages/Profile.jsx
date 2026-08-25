@@ -22,16 +22,22 @@ function Profile() {
       setUser(data);
       setFormData({ nom: data.nom, prenom: data.prenom, email: data.email });
       setLoading(false);
+
+      // On ne filtre qu'une fois qu'on a l'utilisateur authentifié réel
+      // (via /auth/me/), pas la copie potentiellement obsolète dans
+      // localStorage -- id_utilisateur doit venir de la même source que
+      // ce qu'on compare pour éviter tout décalage de forme de données.
+      api.get('/signalements/').then(({ data: sigData }) => {
+        const items = sigData.results || sigData;
+        const mine = Array.isArray(items)
+          ? items.filter(s => s.id_utilisateur === data.id_utilisateur)
+          : [];
+        setSignalements(mine);
+      }).catch(() => {});
     }).catch(() => {
       localStorage.removeItem('user');
       navigate('/connexion');
     });
-
-    api.get('/signalements/').then(({ data }) => {
-      const items = data.results || data;
-      const mine = Array.isArray(items) ? items.filter(s => s.id_utilisateur === stored.id_utilisateur || s.id_utilisateur?.id_utilisateur === stored.id_utilisateur) : [];
-      setSignalements(mine.slice(0, 6));
-    }).catch(() => {});
   }, [navigate]);
 
   const handleLogout = async () => {
@@ -109,7 +115,7 @@ function Profile() {
                 <p className="empty-msg">Aucun signalement pour le moment.</p>
               ) : (
                 <div className="signalements-grid">
-                  {signalements.map(s => (
+                  {signalements.slice(0, 6).map(s => (
                     <Link to={`/signalements/${s.id_signalement}`} key={s.id_signalement} className="signalement-thumb">
                       <span className="thumb-type">{typeLabels[s.type_arnaque] || s.type_arnaque}</span>
                       <span className={`thumb-status ${s.statut === 'confirme' || s.statut === 'approuve' ? 'status-red' : 'status-orange'}`}>

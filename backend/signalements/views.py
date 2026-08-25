@@ -580,7 +580,7 @@ def moderation_signalement(request, signalement_id):
             "message": message,
         },
     )
-﻿from django.db import models as dj_models
+from django.db import models as dj_models
 from django.conf import settings
 from rest_framework import viewsets, permissions, filters, status
 from rest_framework.decorators import action, api_view, permission_classes
@@ -605,7 +605,7 @@ def est_admin_ou_autorite(user):
 
 class SignalementViewSet(viewsets.ModelViewSet):
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
-    search_fields = ["numero_telephone", "profil_vendeur", "description"]
+    search_fields = ["numero_telephone","email", "profil_vendeur", "description"]
     ordering_fields = ["date_signalement", "score"]
     ordering = ["-date_signalement"]
 
@@ -748,10 +748,11 @@ ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".gif", ".pdf", ".doc", ".docx"}
 MAX_FILE_SIZE = 10 * 1024 * 1024  # 10 Mo
 
 
+from azure.storage.blob import BlobServiceClient
+
 @api_view(["POST"])
 @permission_classes([permissions.IsAuthenticated])
 def upload_preuve(request):
-    """POST /api/signalements/upload/ — upload un fichier preuve et retourne l'URL."""
     fichier = request.FILES.get("fichier")
     if not fichier:
         return Response({"error": "Aucun fichier fourni."}, status=400)
@@ -759,18 +760,13 @@ def upload_preuve(request):
     ext = os.path.splitext(fichier.name)[1].lower()
     if ext not in ALLOWED_EXTENSIONS:
         return Response({"error": f"Type de fichier non autorisé: {ext}"}, status=400)
-
     if fichier.size > MAX_FILE_SIZE:
         return Response({"error": "Le fichier dépasse 10 Mo."}, status=400)
 
     unique_name = f"{uuid.uuid4().hex}{ext}"
-    upload_dir = settings.MEDIA_ROOT / "preuves"
-    upload_dir.mkdir(parents=True, exist_ok=True)
+    client = BlobServiceClient.from_connection_string(settings.AZURE_STORAGE_CONNECTION_STRING)
+    container = client.get_container_client(settings.AZURE_CONTAINER_NAME)
+    container.upload_blob(unique_name, fichier.read())
 
-    file_path = upload_dir / unique_name
-    with open(file_path, "wb") as f:
-        for chunk in fichier.chunks():
-            f.write(chunk)
-
-    url = f"{settings.MEDIA_URL}preuves/{unique_name}"
+    url = f"https://{settings.AZURE_ACCOUNT_NAME}.blob.core.windows.net/{settings.AZURE_CONTAINER_NAME}/{unique_name}"
     return Response({"url": url, "filename": fichier.name}, status=201)
