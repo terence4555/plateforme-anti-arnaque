@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Bouclier: moitié gauche bleu foncé, moitié droite bleu clair -->
+  <defs>
+    <clipPath id="shieldClip">
+      <path d="M50 6 L82 18 V46 C82 68 68 84 50 94 C32 84 18 68 18 46 V18 Z"/>
+    </clipPath>
+  </defs>
+
+  <g clip-path="url(#shieldClip)">
+    <rect x="0" y="0" width="50" height="100" fill="#1B4F91"/>
+    <rect x="50" y="0" width="50" height="100" fill="#6FC3F7"/>
+  </g>
+
+  <path d="M50 6 L82 18 V46 C82 68 68 84 50 94 C32 84 18 68 18 46 V18 Z"
+        fill="none" stroke="#0E3A73" stroke-width="3"/>
+
+  <!-- Coche de validation au centre -->
+  <path d="M33 50 L45 62 L69 36"
+        fill="none" stroke="#FFFFFF" stroke-width="9"
+        stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
